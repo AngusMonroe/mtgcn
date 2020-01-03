@@ -15,30 +15,20 @@ def acc_f1(output, labels, average='binary'):
 def acc_f1_auc(output, labels, n_classes):
     output = torch.sigmoid(output)
     output = (output > 0.5).long()
-    print(output.shape)
-    print(labels.shape)
-    k1 = 0
-    k2 = 0
-    for i in range(output.shape[0]):
-        for j in range(output.shape[1]):
-            k1 += (output[i][j] == 1)
-    print(k1)
-    for i in range(labels.shape[0]):
-        for j in range(labels.shape[1]):
-            k2 += (labels[i][j] == 1)
-    print(k2)
-    TP = ((output == 1) & (labels == 1)).sum()
-    TN = ((output == 0) & (labels == 0)).sum()
-    FP = ((output == 1) & (labels == 0)).sum()
-    FN = ((output == 0) & (labels == 1)).sum()
+    TP = ((output == 1) & (labels == 1)).sum().float()
+    TN = ((output == 0) & (labels == 0)).sum().float()
+    FP = ((output == 1) & (labels == 0)).sum().float()
+    FN = ((output == 0) & (labels == 1)).sum().float()
     print(TP)
     print(TN)
     print(FP)
     print(FN)
-    accuracy = accuracy_score(labels, output)
-    f1_micro = f1_score(labels, output, average='micro')
-    print(output)
-    print(labels)
+    # accuracy = accuracy_score(labels, output)
+    # f1_micro = f1_score(labels, output, average='micro')
+    accuracy = (TP+TN)/(TP+TN+FP+FN)
+    p = TP/(TP+FP)
+    r = TP/(TP+FN)
+    f1_micro = 2*p*r/(p+r)
     f1_macro = f1_score(labels, output, average='macro')
     labels = np.array(labels)
     output = np.array(output)
