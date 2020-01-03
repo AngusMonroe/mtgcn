@@ -90,8 +90,7 @@ class MLModel(BaseModel):
     def __init__(self, args):
         super(MLModel, self).__init__(args)
         self.decoder = model2decoder[args.model](self.c, args)
-        self.f1_average_micro = 'micro'
-        self.f1_average_macro = 'macro'
+        self.n_classes = args.n_classes
         if args.pos_weight:
             self.weights = torch.Tensor([1., 1. / data['labels'][idx_train].mean()])
         else:
@@ -107,16 +106,16 @@ class MLModel(BaseModel):
         idx = data[f'idx_{split}']
         output = self.decode(embeddings, data['adj_train_norm'], idx)
         loss = F.binary_cross_entropy_with_logits(output, data['labels'][idx].float(), self.weights)
-        acc, f1_micro, f1_macro, auc_micro, auc_macro = acc_f1_auc(output.long(), data['labels'][idx])
+        acc, f1_micro, f1_macro, auc_micro, auc_macro = acc_f1_auc(output.long(), data['labels'][idx], self.n_classes)
         metrics = {'loss': loss, 'acc': acc, 'f1_micro': f1_micro, 'f1_macro': f1_macro,
                    'auc_micro': auc_micro, 'auc_macro': auc_macro}
         return metrics
 
     def init_metric_dict(self):
-        return {'acc': -1, 'f1': -1}
+        return {'acc': -1, 'f1_micro': -1, 'f1_macro': -1}
 
     def has_improved(self, m1, m2):
-        return m1["f1"] < m2["f1"]
+        return m1["f1_micro"] < m2["f1_micro"]
 
 
 class LPModel(BaseModel):
