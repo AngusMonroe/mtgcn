@@ -70,6 +70,7 @@ class NCModel(BaseModel):
     def compute_metrics(self, embeddings, data, split):
         idx = data[f'idx_{split}']
         output = self.decode(embeddings, data['adj_train_norm'], idx)
+        print(output)
         loss = F.nll_loss(output, data['labels'][idx], self.weights)
         acc, f1 = acc_f1(output, data['labels'][idx], average=self.f1_average)
         metrics = {'loss': loss, 'acc': acc, 'f1': f1}
@@ -105,6 +106,7 @@ class MLModel(BaseModel):
     def compute_metrics(self, embeddings, data, split):
         idx = data[f'idx_{split}']
         output = self.decode(embeddings, data['adj_train_norm'], idx)
+        print(output)
         loss = F.binary_cross_entropy_with_logits(output, data['labels'][idx].float(), self.weights)
         acc, f1_micro, f1_macro, auc_micro, auc_macro = acc_f1_auc(output.long(), data['labels'][idx], self.n_classes)
         metrics = {'loss': loss, 'acc': acc, 'f1_micro': f1_micro, 'f1_macro': f1_macro,
