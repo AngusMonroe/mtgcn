@@ -107,7 +107,7 @@ class MLModel(BaseModel):
         idx = data[f'idx_{split}']
         output = self.decode(embeddings, data['adj_train_norm'], idx)
         loss = F.binary_cross_entropy_with_logits(output, data['labels'][idx].float(), self.weights)
-        acc, f1_micro, f1_macro, auc_micro, auc_macro = acc_f1_auc(output, data['labels'][idx])
+        acc, f1_micro, f1_macro, auc_micro, auc_macro = acc_f1_auc(output.long(), data['labels'][idx])
         metrics = {'loss': loss, 'acc': acc, 'f1_micro': f1_micro, 'f1_macro': f1_macro,
                    'auc_micro': auc_micro, 'auc_macro': auc_macro}
         return metrics
