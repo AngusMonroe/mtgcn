@@ -129,7 +129,7 @@ def load_data_lp(dataset, use_feats, data_path):
 
 
 def load_data_nc(dataset, use_feats, data_path, split_seed):
-    if dataset in ['disc, disd, disp, med, dur']:
+    if dataset in ['disc', 'disd', 'disp', 'med', 'dur']:
         adj, features, labels, idx_train, idx_val, idx_test = load_medical_data(
             dataset, use_feats, data_path, split_seed
         )
