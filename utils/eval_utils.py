@@ -24,7 +24,7 @@ def acc_f1_auc(output, labels, n_classes):
     # f1_micro = f1_score(labels, output, average='micro')
     precision = TP / (TP + FP)
     recall = TP / (TP + FN)
-    f1_micro = 2*precision*recall / (precision+recall)
+    f1_micro = 2*precision*recall / (precision+recall+1)
     f1_macro = f1_score(labels, output, average='macro')
     labels = np.array(labels)
     output = np.array(output)
