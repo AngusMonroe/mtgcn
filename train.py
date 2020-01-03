@@ -49,7 +49,7 @@ def train(args):
     args.n_nodes, args.feat_dim = data['features'].shape
     if args.task == 'nc' and args.dataset in ['disc', 'disd', 'disp', 'med']:
         Model = MLModel
-        args.n_classes = len(data['labels'])
+        args.n_classes = len(data['labels'][0])
         logging.info(f'Num labels: {args.n_classes}')
     elif args.task == 'nc':
         Model = NCModel
