@@ -12,7 +12,13 @@ def acc_f1(output, labels, average='binary'):
 
 
 def acc_f1_auc(output, labels, n_classes):
-    accuracy = accuracy_score(labels, output)
+    try:
+        accuracy = accuracy_score(labels, output)
+    except:
+        print(type(labels))
+        print(labels)
+        print(type(output))
+        print(output)
     f1_micro = f1_score(labels, output, average='micro')
     f1_macro = f1_score(labels, output, average='macro')
     labels = np.array(labels)
