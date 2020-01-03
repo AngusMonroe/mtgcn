@@ -5,10 +5,11 @@ import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
 import layers.hyp_layers as hyp_layers
+from torch.autograd import Variable
 from models.decoders import model2decoder
 from layers.layers import FermiDiracDecoder
 from sklearn.metrics import roc_auc_score, average_precision_score
-from utils.eval_utils import acc_f1
+from utils.eval_utils import acc_f1, acc_f1_auc
 
 
 class BaseModel(nn.Module):
@@ -72,6 +73,43 @@ class NCModel(BaseModel):
         loss = F.nll_loss(output, data['labels'][idx], self.weights)
         acc, f1 = acc_f1(output, data['labels'][idx], average=self.f1_average)
         metrics = {'loss': loss, 'acc': acc, 'f1': f1}
+        return metrics
+
+    def init_metric_dict(self):
+        return {'acc': -1, 'f1': -1}
+
+    def has_improved(self, m1, m2):
+        return m1["f1"] < m2["f1"]
+
+
+class MLModel(BaseModel):
+    """
+    Base model for node classification task.
+    """
+
+    def __init__(self, args):
+        super(MLModel, self).__init__(args)
+        self.decoder = model2decoder[args.model](self.c, args)
+        self.f1_average_micro = 'micro'
+        self.f1_average_macro = 'macro'
+        if args.pos_weight:
+            self.weights = torch.Tensor([1., 1. / data['labels'][idx_train].mean()])
+        else:
+            self.weights = torch.Tensor([1.] * args.n_classes)
+        if not args.cuda == -1:
+            self.weights = self.weights.to(args.device)
+
+    def decode(self, h, adj, idx):
+        output = self.decoder.decode(h, adj)
+        return output
+
+    def compute_metrics(self, embeddings, data, split):
+        idx = data[f'idx_{split}']
+        output = self.decode(embeddings, data['adj_train_norm'], idx)
+        loss = F.binary_cross_entropy_with_logtis(Variable(torch.LongTensor(output)),
+                                                  Variable(torch.FloatTensor(data['labels'][idx])), self.weights)
+        acc, f1_micro, f1_macro, auc_micro, auc_macro = acc_f1_auc(output, data['labels'][idx], average=self.f1_average)
+        metrics = {'loss': loss, 'acc': acc, 'f1_micro': f1_micro, 'f1_macro': f1_macro, 'auc_micro': auc_micro, 'auc_macro': auc_macro}
         return metrics
 
     def init_metric_dict(self):

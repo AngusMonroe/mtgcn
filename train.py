@@ -12,7 +12,7 @@ import numpy as np
 import optimizers
 import torch
 from config import parser
-from models.base_models import NCModel, LPModel
+from models.base_models import NCModel, MLModel, LPModel
 from utils.data_utils import load_data
 from utils.train_utils import get_dir_name, format_metrics
 
@@ -51,6 +51,10 @@ def train(args):
         Model = NCModel
         args.n_classes = int(data['labels'].max() + 1)
         logging.info(f'Num classes: {args.n_classes}')
+    elif args.task == 'nc' and args.dataset in ['disc', 'disd', 'disp', 'med']:
+        Model = MLModel
+        args.n_classes = len(data['labels'])
+        logging.info(f'Num labels: {args.n_classes}')
     else:
         args.nb_false_edges = len(data['train_edges_false'])
         args.nb_edges = len(data['train_edges'])
