@@ -47,14 +47,14 @@ def train(args):
     # Load data
     data = load_data(args, os.path.join(os.environ['DATAPATH'], args.dataset))
     args.n_nodes, args.feat_dim = data['features'].shape
-    if args.task == 'nc':
-        Model = NCModel
-        args.n_classes = int(data['labels'].max() + 1)
-        logging.info(f'Num classes: {args.n_classes}')
-    elif args.task == 'nc' and args.dataset in ['disc', 'disd', 'disp', 'med']:
+    if args.task == 'nc' and args.dataset in ['disc', 'disd', 'disp', 'med']:
         Model = MLModel
         args.n_classes = len(data['labels'])
         logging.info(f'Num labels: {args.n_classes}')
+    elif args.task == 'nc':
+        Model = NCModel
+        args.n_classes = int(data['labels'].max() + 1)
+        logging.info(f'Num classes: {args.n_classes}')
     else:
         args.nb_false_edges = len(data['train_edges_false'])
         args.nb_edges = len(data['train_edges'])
