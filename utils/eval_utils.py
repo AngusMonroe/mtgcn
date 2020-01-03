@@ -29,6 +29,9 @@ def acc_f1_auc(output, labels, n_classes):
     p = TP/(TP+FP)
     r = TP/(TP+FN)
     f1_micro = 2*p*r/(p+r)
+    if output.is_cuda:
+        output = output.cpu()
+        labels = labels.cpu()
     f1_macro = f1_score(labels, output, average='macro')
     labels = np.array(labels)
     output = np.array(output)
