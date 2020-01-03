@@ -23,6 +23,6 @@ def acc_f1_auc(output, labels, n_classes):
     for i in range(n_classes):
         fpr, tpr, _ = roc_curve(labels[:, i], output[:, i])
         aucs.append(auc(fpr, tpr))
-    auc_macro = aucs.mean()
+    auc_macro = np.mean(aucs)
     return accuracy, f1_micro, f1_macro, auc_micro, auc_macro
 
