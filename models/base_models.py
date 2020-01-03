@@ -106,7 +106,9 @@ class MLModel(BaseModel):
     def compute_metrics(self, embeddings, data, split):
         idx = data[f'idx_{split}']
         output = self.decode(embeddings, data['adj_train_norm'], idx)
-        loss = F.binary_cross_entropy_with_logits(output, Variable(torch.LongTensor(data['labels'][idx])), self.weights)
+        print(data['labels'][idx])
+        print(torch.LongTensor(data['labels'][idx]))
+        loss = F.binary_cross_entropy_with_logits(output, torch.LongTensor(data['labels'][idx]), self.weights)
         acc, f1_micro, f1_macro, auc_micro, auc_macro = acc_f1_auc(output, data['labels'][idx], average=self.f1_average)
         metrics = {'loss': loss, 'acc': acc, 'f1_micro': f1_micro, 'f1_macro': f1_macro, 'auc_micro': auc_micro, 'auc_macro': auc_macro}
         return metrics
