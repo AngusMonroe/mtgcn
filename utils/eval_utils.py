@@ -1,5 +1,6 @@
 from sklearn.metrics import average_precision_score, accuracy_score, f1_score, roc_auc_score, roc_curve, auc
 import numpy as np
+import torch
 
 def acc_f1(output, labels, average='binary'):
     preds = output.max(1)[1].type_as(labels)
@@ -12,13 +13,9 @@ def acc_f1(output, labels, average='binary'):
 
 
 def acc_f1_auc(output, labels, n_classes):
-    try:
-        accuracy = accuracy_score(labels, output)
-    except:
-        print(type(labels))
-        print(labels)
-        print(type(output))
-        print(output)
+    output = torch.sigmoid(output)
+    output = (output > 0.5).long()
+    accuracy = accuracy_score(labels, output)
     f1_micro = f1_score(labels, output, average='micro')
     f1_macro = f1_score(labels, output, average='macro')
     labels = np.array(labels)
