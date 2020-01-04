@@ -104,7 +104,7 @@ class MLModel(BaseModel):
             alpha_neg.append(num_pos / num_total)
         alpha_pos = torch.Tensor([alpha_pos] * data.shape[0])
         alpha_neg = torch.Tensor([alpha_neg] * data.shape[0])
-        weights = alpha_pos * pos + alpha_neg * neg
+        self.weights = alpha_pos * pos + alpha_neg * neg
         if not args.cuda == -1:
             self.weights = self.weights.to(args.device)
 
