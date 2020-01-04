@@ -67,6 +67,7 @@ def train(args):
 
     if not args.lr_reduce_freq:
         args.lr_reduce_freq = args.epochs
+    args.data = data
 
     # Model and optimizer
     model = Model(args)

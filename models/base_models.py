@@ -91,18 +91,19 @@ class MLModel(BaseModel):
         super(MLModel, self).__init__(args)
         self.decoder = model2decoder[args.model](self.c, args)
         self.n_classes = args.n_classes
-        pos = (data['labels'][idx_train].long() == 1).float()
-        neg = (data['labels'][idx_train].long() == 0).float()
+        data = args.data['labels'][f'idx_train']
+        pos = (data.long() == 1).float()
+        neg = (data.long() == 0).float()
         alpha_pos = []
         alpha_neg = []
-        for i in range(data['labels'][idx_train].shape[1]):
-            num_pos = torch.sum(data['labels'][idx_train].long()[:, i] == 1).float()
-            num_neg = torch.sum(data['labels'][idx_train].long()[:, i] == 0).float()
+        for i in range(data.shape[1]):
+            num_pos = torch.sum(data.long()[:, i] == 1).float()
+            num_neg = torch.sum(data.long()[:, i] == 0).float()
             num_total = num_pos + num_neg
             alpha_pos.append(num_neg / num_total)
             alpha_neg.append(num_pos / num_total)
-        alpha_pos = torch.Tensor([alpha_pos] * data['labels'][idx_train].shape[0])
-        alpha_neg = torch.Tensor([alpha_neg] * data['labels'][idx_train].shape[0])
+        alpha_pos = torch.Tensor([alpha_pos] * data.shape[0])
+        alpha_neg = torch.Tensor([alpha_neg] * data.shape[0])
         weights = alpha_pos * pos + alpha_neg * neg
         if not args.cuda == -1:
             self.weights = self.weights.to(args.device)
