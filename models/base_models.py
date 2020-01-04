@@ -109,8 +109,8 @@ class MLModel(BaseModel):
             num_total = num_pos + num_neg
             alpha_pos.append(num_neg / num_total)
             alpha_neg.append(num_pos / num_total)
-        alpha_pos = torch.Tensor([alpha_pos] * data['labels'][idx].shape[0])
-        alpha_neg = torch.Tensor([alpha_neg] * data['labels'][idx].shape[0])
+        alpha_pos = torch.Tensor([alpha_pos] * data['labels'][idx].shape[0]).cpu()
+        alpha_neg = torch.Tensor([alpha_neg] * data['labels'][idx].shape[0]).cpu()
         weights = alpha_pos * pos + alpha_neg * neg
         loss = F.binary_cross_entropy_with_logits(output, data['labels'][idx].float(), weights)
         acc, f1_micro, f1_macro, auc_micro, auc_macro = acc_f1_auc(output, data['labels'][idx].long(), self.n_classes)
