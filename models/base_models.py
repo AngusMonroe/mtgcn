@@ -91,7 +91,7 @@ class MLModel(BaseModel):
         super(MLModel, self).__init__(args)
         self.decoder = model2decoder[args.model](self.c, args)
         self.n_classes = args.n_classes
-        data = args.data['labels'][f'idx_train']
+        data = args.data['labels'][args.data[f'idx_train']]
         pos = (data.long() == 1).float()
         neg = (data.long() == 0).float()
         alpha_pos = []
