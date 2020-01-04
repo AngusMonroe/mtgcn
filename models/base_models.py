@@ -91,12 +91,6 @@ class MLModel(BaseModel):
         super(MLModel, self).__init__(args)
         self.decoder = model2decoder[args.model](self.c, args)
         self.n_classes = args.n_classes
-        if args.pos_weight:
-            self.weights = torch.Tensor([1., 1. / data['labels'][idx_train].mean()])
-        else:
-            self.weights = torch.Tensor([1.] * args.n_classes)
-        if not args.cuda == -1:
-            self.weights = self.weights.to(args.device)
 
     def decode(self, h, adj, idx):
         output = self.decoder.decode(h, adj)
@@ -105,7 +99,15 @@ class MLModel(BaseModel):
     def compute_metrics(self, embeddings, data, split):
         idx = data[f'idx_{split}']
         output = self.decode(embeddings, data['adj_train_norm'], idx)
-        loss = F.binary_cross_entropy_with_logits(output, data['labels'][idx].float(), self.weights)
+        pos = (data['labels'][idx].long() == 1).float()
+        neg = (data['labels'][idx].long() == 0).float()
+        num_pos = torch.sum(pos)
+        num_neg = torch.sum(neg)
+        num_total = num_pos + num_neg
+        alpha_pos = num_neg / num_total
+        alpha_neg = num_pos / num_total
+        weights = alpha_pos * pos + alpha_neg * neg
+        loss = F.binary_cross_entropy_with_logits(output, data['labels'][idx].float(), weights)
         acc, f1_micro, f1_macro, auc_micro, auc_macro = acc_f1_auc(output, data['labels'][idx].long(), self.n_classes)
         metrics = {'loss': loss, 'acc': acc, 'f1_micro': f1_micro, 'f1_macro': f1_macro,
                    'auc_micro': auc_micro, 'auc_macro': auc_macro}
