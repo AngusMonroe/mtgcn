@@ -103,7 +103,7 @@ class MLModel(BaseModel):
         neg = (data['labels'][idx].long() == 0).float()
         alpha_pos = []
         alpha_neg = []
-        for i in range(data['labels'][idx].shape[0]):
+        for i in range(data['labels'][idx].shape[1]):
             num_pos = torch.sum(data['labels'][idx].long()[:, i] == 1).float()
             num_neg = torch.sum(data['labels'][idx].long()[:, i] == 0).float()
             num_total = num_pos + num_neg
