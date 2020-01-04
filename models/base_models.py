@@ -91,6 +91,21 @@ class MLModel(BaseModel):
         super(MLModel, self).__init__(args)
         self.decoder = model2decoder[args.model](self.c, args)
         self.n_classes = args.n_classes
+        pos = (data['labels'][idx_train].long() == 1).float()
+        neg = (data['labels'][idx_train].long() == 0).float()
+        alpha_pos = []
+        alpha_neg = []
+        for i in range(data['labels'][idx_train].shape[1]):
+            num_pos = torch.sum(data['labels'][idx_train].long()[:, i] == 1).float()
+            num_neg = torch.sum(data['labels'][idx_train].long()[:, i] == 0).float()
+            num_total = num_pos + num_neg
+            alpha_pos.append(num_neg / num_total)
+            alpha_neg.append(num_pos / num_total)
+        alpha_pos = torch.Tensor([alpha_pos] * data['labels'][idx_train].shape[0])
+        alpha_neg = torch.Tensor([alpha_neg] * data['labels'][idx_train].shape[0])
+        weights = alpha_pos * pos + alpha_neg * neg
+        if not args.cuda == -1:
+            self.weights = self.weights.to(args.device)
 
     def decode(self, h, adj, idx):
         output = self.decoder.decode(h, adj)
@@ -99,20 +114,7 @@ class MLModel(BaseModel):
     def compute_metrics(self, embeddings, data, split):
         idx = data[f'idx_{split}']
         output = self.decode(embeddings, data['adj_train_norm'], idx)
-        pos = (data['labels'][idx].long() == 1).float()
-        neg = (data['labels'][idx].long() == 0).float()
-        alpha_pos = []
-        alpha_neg = []
-        for i in range(data['labels'][idx].shape[1]):
-            num_pos = torch.sum(data['labels'][idx].long()[:, i] == 1).float()
-            num_neg = torch.sum(data['labels'][idx].long()[:, i] == 0).float()
-            num_total = num_pos + num_neg
-            alpha_pos.append(num_neg / num_total)
-            alpha_neg.append(num_pos / num_total)
-        alpha_pos = torch.Tensor([alpha_pos] * data['labels'][idx].shape[0]).cpu()
-        alpha_neg = torch.Tensor([alpha_neg] * data['labels'][idx].shape[0]).cpu()
-        weights = alpha_pos * pos + alpha_neg * neg
-        loss = F.binary_cross_entropy_with_logits(output, data['labels'][idx].float(), weights)
+        loss = F.binary_cross_entropy_with_logits(output, data['labels'][idx].float(), self.weights)
         acc, f1_micro, f1_macro, auc_micro, auc_macro = acc_f1_auc(output, data['labels'][idx].long(), self.n_classes)
         metrics = {'loss': loss, 'acc': acc, 'f1_micro': f1_micro, 'f1_macro': f1_macro,
                    'auc_micro': auc_micro, 'auc_macro': auc_macro}
