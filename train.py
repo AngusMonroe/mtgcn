@@ -46,7 +46,6 @@ def train(args):
 
     # Load data
     data = load_data(args, os.path.join(os.environ['DATAPATH'], args.dataset))
-    print(data.keys())
     args.n_nodes, args.feat_dim = data['features'].shape
     if args.task == 'nc' and args.dataset in ['disc', 'disd', 'disp', 'med']:
         Model = MLModel
