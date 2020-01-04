@@ -91,7 +91,7 @@ class MLModel(BaseModel):
         super(MLModel, self).__init__(args)
         self.decoder = model2decoder[args.model](self.c, args)
         self.n_classes = args.n_classes
-        data = args.data['labels'][args.data[f'idx_train']]
+        data = args.data['labels']
         pos = (data.long() == 1).float()
         neg = (data.long() == 0).float()
         alpha_pos = []
@@ -115,7 +115,7 @@ class MLModel(BaseModel):
     def compute_metrics(self, embeddings, data, split):
         idx = data[f'idx_{split}']
         output = self.decode(embeddings, data['adj_train_norm'], idx)
-        loss = F.binary_cross_entropy_with_logits(output, data['labels'][idx].float(), self.weights)
+        loss = F.binary_cross_entropy_with_logits(output, data['labels'][idx].float(), self.weights[idx])
         acc, f1_micro, f1_macro, auc_micro, auc_macro = acc_f1_auc(output, data['labels'][idx].long(), self.n_classes)
         metrics = {'loss': loss, 'acc': acc, 'f1_micro': f1_micro, 'f1_macro': f1_macro,
                    'auc_micro': auc_micro, 'auc_macro': auc_macro}
