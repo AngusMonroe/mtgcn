@@ -182,8 +182,9 @@ def load_medical_data(dataset_str, use_feats, data_path, split_seed=None):
         print(k)
         i += 1
     adj = nx.adjacency_matrix(nx.from_dict_of_lists(graph))
+    s = nx.to_dict_of_lists(adj)
     i = 0
-    for k in nx.to_dict_of_lists(adj).keys():
+    for k in s.keys():
         if i > 10:
             break
         print(k)
