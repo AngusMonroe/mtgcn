@@ -175,20 +175,7 @@ def load_medical_data(dataset_str, use_feats, data_path, split_seed=None):
     nb_val = round(0.10 * len(all_idx))
     nb_test = round(0.20 * len(all_idx))
     idx_val, idx_test, idx_train = all_idx[:nb_val], all_idx[nb_val: nb_val+nb_test], all_idx[nb_val+nb_test:]
-    i = 0
-    for k in graph.keys():
-        if i > 10:
-            break
-        print(k)
-        i += 1
     adj = nx.adjacency_matrix(nx.from_dict_of_lists(graph))
-    s = nx.to_dict_of_lists(adj)
-    i = 0
-    for k in s.keys():
-        if i > 10:
-            break
-        print(k)
-        i += 1
     if not use_feats:
         features = sp.eye(adj.shape[0])
     return adj, features, labels, idx_train, idx_val, idx_test
