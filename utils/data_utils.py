@@ -177,7 +177,7 @@ def load_medical_data(dataset_str, use_feats, data_path, split_seed=None):
     idx_val, idx_test, idx_train = all_idx[:nb_val], all_idx[nb_val: nb_val+nb_test], all_idx[nb_val+nb_test:]
     adj = nx.adjacency_matrix(nx.from_dict_of_lists(graph))
     if not use_feats:
-        features = sp.eye(adj.shape[0])
+        features = sp.sparse.coo_matrix(sp.eye(adj.shape[0]))
     return adj, features, labels, idx_train, idx_val, idx_test
 
 
