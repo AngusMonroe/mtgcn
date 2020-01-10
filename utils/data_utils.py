@@ -33,11 +33,9 @@ def load_data(args, datapath):
 
 
 def process(adj, features, normalize_adj, normalize_feats):
-    if sp.isspmatrix(features):
-        features = np.array(features.todense())
     if normalize_feats:
         features = normalize(features)
-    features = torch.Tensor(features)
+    features = sparse_mx_to_torch_sparse_tensor(features)
     if normalize_adj:
         adj = normalize(adj + sp.eye(adj.shape[0]))
     adj = sparse_mx_to_torch_sparse_tensor(adj)
