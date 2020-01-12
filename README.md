@@ -34,7 +34,7 @@ All models can be trained for
 
 If you don't have conda installed, please install it following the instructions [here](https://conda.io/projects/conda/en/latest/user-guide/install/index.html).
 
-```git clone https://github.com/HestiaSky/mthgcn```
+```git clone https://github.com/HestiaSky/mtgcn```
 
 ```cd hgcn```
 
